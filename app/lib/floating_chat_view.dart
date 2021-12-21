@@ -1,52 +1,64 @@
+import 'dart:developer' as d;
 import 'dart:math';
 
 import 'package:app/floating_chat.dart';
 import 'package:flutter/material.dart';
 
-class FloatingChatView extends StatelessWidget {
+class FloatingChatView extends StatefulWidget {
+  /// constructor
+  const FloatingChatView({
+    Key? key,
+    required this.globalKey,
+    required this.chatRooms,
+    required this.centerChatBubble,
+    required this.maxHeight,
+    required this.maxWidth,
+    this.surroundingColor,
+  }) : super(key: key);
+
   /// variables
+  final GlobalKey globalKey;
   final List<FloatingChat> chatRooms; // chat rooms to be placed
   final LinearGradient?
       surroundingColor; // when new chat arrives, the color will be surrounded
   final FloatingChat centerChatBubble; // main user's bubble
-  final double centerChatBubbleRadius; // main user's radius
+  // final double centerChatBubbleRadius; // main user's radius
+  final double maxHeight;
+  final double maxWidth;
 
-  /// constructor
-  const FloatingChatView({
-    Key? key,
-    required this.chatRooms,
-    required this.centerChatBubble,
-    this.surroundingColor,
-    required this.centerChatBubbleRadius,
-  }) : super(key: key);
+  @override
+  _FloatingChatViewState createState() => _FloatingChatViewState();
+}
 
+class _FloatingChatViewState extends State<FloatingChatView> {
   /// check whether chat room is inside the screen
   bool _isInsideScreen(double dist, double maxWidth, double maxHeight) =>
       dist <= min(maxWidth, maxHeight);
 
   /// find out if the two circles meet together
   bool _hasCollided(double r1, double r2, double d) =>
-      !(r1 + r1 < d) ||
+      !(r1 + r2 < d) ||
       ((max(r1, r2) - min(r1, r2) < d) && (d < r1 + r2)) ||
       (max(r1, r2) - min(r1, r2) == d) ||
       (max(r1, r2) - min(r1, r2) > d);
 
   /// place chat rooms
-  List<FloatingChat> setPositions({
-    required double maxHeight,
-    required double maxWidth,
-  }) {
+  List<FloatingChat> setPositions() {
+    d.log("chatRooms length : ${widget.chatRooms.length}");
+    d.log("the window size : ${widget.maxWidth} * ${widget.maxHeight}");
     List<FloatingChat> result = [];
 
     /// set mid
-    double midWidth = maxWidth / 2;
-    double midHeight = maxHeight / 2;
+    double midWidth = widget.maxWidth / 2;
+    double midHeight = widget.maxHeight / 2;
 
     /// 1) sort by distance
-    for (FloatingChat c in chatRooms) {
+    for (FloatingChat c in widget.chatRooms) {
       result.add(c);
     }
     result.sort((c1, c2) => c1.distance.compareTo(c2.distance));
+
+    List<int> haveTried = [];
 
     /// 2) place the closest chat room first and try N-times
     for (int i = 0; i < result.length; ++i) {
@@ -54,14 +66,27 @@ class FloatingChatView extends StatelessWidget {
       FloatingChat fChat = result[i];
       int tried = 0; // try 360 / 5 = 72 times
       /// check the distance first
-      if (!_isInsideScreen(fChat.distance, maxWidth, maxHeight)) continue;
-      List<int> haveTried = [];
+      if (!_isInsideScreen(fChat.distance, widget.maxWidth, widget.maxHeight)) {
+        continue;
+      }
+
       int radian = 0;
       while (tried < 72) {
+        // bool isNotDuplicated = false;
+
         /// try different radian
-        do {
-          radian = Random().nextInt(360);
-        } while (!haveTried.contains(radian));
+        radian = Random().nextInt(360) ~/ 10 * 10;
+        // do {
+        //   if (!haveTried.contains(radian)) {
+        //     isNotDuplicated = true;
+        //     break;
+        //   }
+
+        // } while (haveTried.isNotEmpty);
+
+        // if (isNotDuplicated) {
+        //   haveTried.add(radian);
+        // }
 
         /// calculate top(Y) and left(X), also distance from center
         double newTop = midHeight + fChat.distance * sin(radian);
@@ -71,10 +96,10 @@ class FloatingChatView extends StatelessWidget {
 
         /// check if newCircle collides with center circle
         /// if it collides then update the distance a bit longer
-        while (_hasCollided(
-            fChat.radius, centerChatBubbleRadius, distancefromCenter)) {
-          fChat.updateDistance = fChat.distance * 1.15;
-        }
+        // while (_hasCollided(
+        //     fChat.radius, widget.centerChatBubble.radius, distancefromCenter)) {
+        //   fChat.updateDistance = fChat.distance * 1.15;
+        // }
 
         /// check if new Circle collides with other circles
         bool hasCollidedWithOthers = false;
@@ -96,6 +121,7 @@ class FloatingChatView extends StatelessWidget {
             break;
           } // if
         } // for
+        d.log("fChat has collided : ${fChat.name}");
         if (!hasCollidedWithOthers) {
           /// set results, save it
           fChat.top = newTop;
@@ -111,44 +137,68 @@ class FloatingChatView extends StatelessWidget {
       if (!hasPlaced) {
         /// the circle has not been set yet
         /// let's try different radius again
-        // fChat.updateDistance = fChat.distance * 1.2;
-        // i -= 1;
+        fChat.updateDistance = fChat.distance * 1.15;
+        i -= 1;
+      } else {
+        d.log("set circle : ${fChat.name}");
       }
     }
 
     return result;
   }
 
+  late final List<FloatingChat> setChatRooms;
+
+  @override
+  void initState() {
+    setChatRooms = setPositions();
+
+    super.initState();
+  }
+
   /// rendered view
   @override
   Widget build(BuildContext context) {
-    /// get width and height
-    final maxHeight = MediaQuery.of(context).size.height;
-    final maxWidth = MediaQuery.of(context).size.width;
+    return SafeArea(
+      child: Center(
+        child: InteractiveViewer(
+            minScale: 0.1,
+            child: Stack(
+              children: [
+                /// other chat rooms
+                Stack(
+                  children: setChatRooms
+                      .map(
+                        (item) => Positioned(
+                          top: item.top,
+                          left: item.left,
+                          child: InkWell(
+                              onTap: () {
+                                /// in default, show chatting room
+                                showBottomSheet(
+                                    context: context,
+                                    builder: (_) {
+                                      return Container(
+                                        child: Center(
+                                          child: Text(item.name),
+                                        ),
+                                      );
+                                    });
+                              },
+                              child: item.getFloatingCircle),
+                        ),
+                      )
+                      .toList(),
+                ),
 
-    return InteractiveViewer(
-        minScale: 0.1,
-        child: Stack(
-          children: [
-            /// other chat rooms
-            Stack(
-              children: setPositions(maxHeight: maxHeight, maxWidth: maxWidth)
-                  .map(
-                    (item) => Positioned(
-                      top: item.top,
-                      left: item.left,
-                      child: item.getFloatingCircle,
-                    ),
-                  )
-                  .toList(),
-            ),
-
-            /// center user
-            Align(
-              alignment: Alignment.center,
-              child: centerChatBubble.getFloatingCircle,
-            )
-          ],
-        ));
+                /// center user
+                Align(
+                  alignment: Alignment.center,
+                  child: widget.centerChatBubble.getFloatingCircle,
+                )
+              ],
+            )),
+      ),
+    );
   }
 }

@@ -39,17 +39,16 @@ class FloatingChat {
   Widget get getFloatingCircle => Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          boxShadow: !hasUpdate
-              ? [
-                  BoxShadow(
-                    blurRadius: 8,
-                    color: const Color(0xFF000000).withOpacity(0.25),
-                    spreadRadius: 2,
-                  )
-                ]
-              : null,
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 4,
+              color: const Color(0xFF000000).withOpacity(0.15),
+              spreadRadius: 1,
+            )
+          ],
           gradient: hasUpdate ? surroundingColor : null,
         ),
+        padding: EdgeInsets.all(radius * 0.2),
         child: CircleAvatar(
           radius: radius,
           backgroundImage: backgroundImageURL != null
@@ -57,7 +56,7 @@ class FloatingChat {
               : null,
           backgroundColor: backgroundImageURL == null && backgroundColor != null
               ? backgroundColor
-              : Colors.transparent,
+              : Colors.white,
         ),
       );
 
