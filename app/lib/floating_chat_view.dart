@@ -44,8 +44,13 @@ class _FloatingChatViewState extends State<FloatingChatView> {
 
   /// TODO distance should be updated within screen
   /// check whether chat room is inside the screen
-  bool _isInsideScreen(double dist, double maxWidth, double maxHeight) =>
-      dist <= min(maxWidth, maxHeight);
+  bool _isInsideScreen(
+    double dist,
+    double radius,
+    double maxWidth,
+    double maxHeight,
+  ) =>
+      dist < (min(maxWidth, maxHeight) - radius);
 
   /// find out if the two circles meet together
   /// returns `true` when collides
@@ -88,9 +93,12 @@ class _FloatingChatViewState extends State<FloatingChatView> {
       FloatingChat fChat = result[i];
       int tried = 0; // try 360 / 5 = 72 times
       /// check the distance first
-      if (!_isInsideScreen(fChat.distance, widget.maxWidth, widget.maxHeight)) {
-        continue;
-      }
+      if (!_isInsideScreen(
+        fChat.distance,
+        fChat.radius,
+        midWidth,
+        midHeight,
+      )) continue;
 
       double radian = 0;
       while (tried < 72) {
@@ -268,22 +276,8 @@ class _FloatingChatViewState extends State<FloatingChatView> {
                 /// center user
                 Align(
                   alignment: Alignment.center,
-                  child: widget.centerChatBubble.getFloatingCircle,
+                  child: widget.centerChatBubble.getCenterCircle().getFloatingCircle,
                 ),
-                // Positioned(
-                //   top: 413 - 35 - 22,
-                //   left: 214 - 35,
-                //     child: CircleAvatar(
-                //       backgroundColor: Colors.amber,
-                //       radius: 35,
-                // )),
-                Positioned.fromRect(
-                    rect: Rect.fromCenter(
-                        center: Offset(0, 0), width: 100, height: 100),
-                    child: CircleAvatar(
-                      radius: 35,
-                      backgroundColor: Colors.amber,
-                    ))
               ],
             )),
       ),
