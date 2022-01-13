@@ -50,19 +50,20 @@ class _FloatingChatViewState extends State<FloatingChatView> {
     double maxWidth,
     double maxHeight,
   ) =>
-      dist < (min(maxWidth, maxHeight) - radius);
+      dist < (min(maxWidth, maxHeight) - radius * 2 - 40);
 
   /// find out if the two circles meet together
   /// returns `true` when collides
-  bool _hasCollided(double r1, double r2, double d) =>
-      (d > 0) && // every case should be with distance
-      ((r1 + r2 >= d) || // more than 1 point
-          // ((max(r1, r2) - min(r1, r2) < d) && (d < r1 + r2)) ||
-          (max(r1, r2) - min(r1, r2) == d) || // meets at 1 point
-          (max(r1, r2) - min(r1, r2) > d) || // doesn't meet but overlays
-          // (r1 + r2 == d) || // at 1 point
-          (pow(r1, 2) + pow(r2, 2) == pow(d, 2))); // 90 degree and at 1 point
+  bool _hasCollided(double r1, double r2, double d) => (
+      // meets at 2 points
+      ((r1 - r2).abs() < d && d < r1 + r2) ||
+          // meets at only 1 point
+          (r1 + r2 == d) || // outer circle
+          ((r1 - r2).abs() == d) || // inner circle
+          // doesn't meet but is inside the bigger circle
+          (d < (r1 - r2).abs()));
 
+  // TODO change into functional programming style
   /// place chat rooms
   List<FloatingChat> setPositions() {
     d.log("chatRooms length : ${widget.chatRooms.length}");
@@ -130,34 +131,17 @@ class _FloatingChatViewState extends State<FloatingChatView> {
             (Random().nextInt((maxDegree + 1) - minDegree) + minDegree) ~/
                 10 *
                 10);
-        // do {
-        //   if (!haveTried.contains(radian)) {
-        //     isNotDuplicated = true;
-        //     break;
-        //   }
-
-        // } while (haveTried.isNotEmpty);
-
-        // if (isNotDuplicated) {
-        //   haveTried.add(radian);
-        // }
 
         /// calculate top(Y) and left(X), also distance from center
-        // double newTop = midHeight + fChat.distance * sin(radian);
-        // double newLeft = midWidth + fChat.distance * cos(radian);
-        double newTop = midHeight +
-            (midWidth ~/ result.length) * (i + 1) * sin(radian) * 1.05;
-        double newLeft = midWidth +
-            (midWidth ~/ result.length) * (i + 1) * cos(radian) * 1.05;
+        /// since it needs to be painted, the sign should be opposite
+        double canvasSinTheta = (-1) * sin(radian);
+        double canvasCosTheta = (-1) * cos(radian);
+        const double K = 1.05;
+        double canvasDistance = (midWidth ~/ result.length) * (i + 1) * K;
 
-        /// check if newCircle collides with center circle
-        /// if it collides then update the distance a bit longer
-        // while (_hasCollided(
-        //     fChat.radius, widget.centerChatBubble.radius, distancefromCenter)) {
-        //   // fChat.updateDistance = fChat.distance * 1.15;
-        //   tried += 1;
-        //   continue;
-        // }
+        /// get canvas position
+        double newTop = midHeight + canvasDistance * canvasSinTheta;
+        double newLeft = midWidth + canvasDistance * canvasCosTheta;
 
         /// check if new Circle collides with other circles
         bool hasCollidedWithOthers = false;
@@ -246,23 +230,21 @@ class _FloatingChatViewState extends State<FloatingChatView> {
                                 showBottomSheet(
                                     context: context,
                                     builder: (_) {
-                                      return Container(
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Text(item.name),
-                                              Text("Y : " +
-                                                  item.top.toString() +
-                                                  "\n" +
-                                                  "X : " +
-                                                  item.left.toString() +
-                                                  "\ndistance : ${item.distance}"),
-                                            ],
-                                          ),
+                                      return Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(item.name),
+                                            Text("Y : " +
+                                                item.top.toString() +
+                                                "\n" +
+                                                "X : " +
+                                                item.left.toString() +
+                                                "\ndistance : ${item.distance}"),
+                                          ],
                                         ),
                                       );
                                     });
@@ -276,7 +258,9 @@ class _FloatingChatViewState extends State<FloatingChatView> {
                 /// center user
                 Align(
                   alignment: Alignment.center,
-                  child: widget.centerChatBubble.getCenterCircle().getFloatingCircle,
+                  child: widget.centerChatBubble
+                      .getCenterCircle()
+                      .getFloatingCircle,
                 ),
               ],
             )),
