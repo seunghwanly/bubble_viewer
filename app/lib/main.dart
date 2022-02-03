@@ -1,8 +1,7 @@
+import 'package:app/bubble.dart';
 import 'package:flutter/material.dart';
 
-import 'package:app/floating_chat_view.dart';
 import 'package:app/dummy_data.dart';
-import 'floating_chat.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,35 +33,36 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GlobalKey _widgetKey = GlobalKey();
-
-  // dummy data
-  late List<FloatingChat> data;
-  late FloatingChat center;
+  late final List<BubbleInformation> dummys;
 
   @override
   void initState() {
     super.initState();
-    data = dummyChats;
-    center = dummyCenter;
+    dummys = dummyData;
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final maxHeight = size.height;
-    final maxWidth = size.width;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: FloatingChatView(
-        globalKey: _widgetKey,
-        centerChatBubble: center,
-        chatRooms: data,
-        maxHeight: maxHeight,
-        maxWidth: maxWidth,
+      body: BubbleViewer(
+        centerBubbleRadius: 100,
+        bubbles: dummys,
+        windowSize: size,
+        centerImageURL:
+            'https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083387_1280.jpg',
+        // backgroundColor: const Color(0xff833ab4),
+        backgroundColor: const Color(0xfffcb045),
+        useBadge: true,
+        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Hello World!'),
+        )),
+        onCenterPressed: () => print('center pressed'),
+        enableSurroundingBackground: false,
       ),
     );
   }
