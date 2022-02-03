@@ -12,8 +12,8 @@ contains ideas from [**@이가영**](mailto:il.sweezy@gmail.com)
 ## 📷 Preview
 
 <p>
-<img src='https://s3.us-west-2.amazonaws.com/secure.notion-static.com/87993da5-4de8-4f07-9721-a840faa27a9f/simulator_screenshot_9A95B3AD-3F41-4B2F-868B-41A34DDA112E.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20220203%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20220203T022005Z&X-Amz-Expires=86400&X-Amz-Signature=9811ab06f8d58f19f6714d495bd56b16907665666ff418f2d74bb567a1e546cc&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22simulator_screenshot_9A95B3AD-3F41-4B2F-868B-41A34DDA112E.png%22&x-id=GetObject' width=200/>
-<img src='https://s3.us-west-2.amazonaws.com/secure.notion-static.com/8b80574f-e5d3-4ac7-99eb-2da78798c9fb/simulator_screenshot_65056464-EC56-40B5-8345-92A0382D8129.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20220203%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20220203T021938Z&X-Amz-Expires=86400&X-Amz-Signature=adaf8d8576a03f677467149631724b327bc21d787af82f5570f246f261551735&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22simulator_screenshot_65056464-EC56-40B5-8345-92A0382D8129.png%22&x-id=GetObject' width=200/>
+<img src='https://user-images.githubusercontent.com/22142225/152313164-394ef59b-4854-468b-b0c3-a03c78f18023.png' width=200/>
+<img src='https://user-images.githubusercontent.com/22142225/152313220-59bdbef3-31af-4844-bf97-5ed71533bd02.png' width=200/>
 </p>
 
 ---
