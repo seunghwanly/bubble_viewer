@@ -296,6 +296,7 @@ class BubbleViewer extends StatefulWidget {
   final Size windowSize;
   final bool? useBadge;
   final bool? useGradient;
+  final bool enableSurroundingBackground;
 
   /// for events
   final VoidCallback? onPressed;
@@ -309,6 +310,7 @@ class BubbleViewer extends StatefulWidget {
     required this.centerBubbleRadius,
     required this.bubbles,
     required this.windowSize,
+    required this.enableSurroundingBackground,
     this.backgroundColor,
     this.useBadge,
     this.useGradient,
@@ -564,9 +566,55 @@ class _BubbleViewerState extends State<BubbleViewer> {
   @override
   Widget build(BuildContext context) {
     return InteractiveViewer(
-        minScale: 0.1,
-        child: Stack(
-          children: bubbles
+      minScale: 0.1,
+      child: Stack(
+        children: [
+          /// background
+          widget.enableSurroundingBackground
+              ? Positioned.fromRect(
+                  rect: Rect.fromCenter(
+                    center: Offset(
+                      widget.windowSize.width / 2,
+                      widget.windowSize.height / 2,
+                    ),
+                    width: widget.windowSize.width * 1.2,
+                    height: widget.windowSize.width * 1.2,
+                  ),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.blue.withOpacity(0.1),
+                    radius: widget.windowSize.width * 1.2,
+                    child: Center(
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.blue.withOpacity(0.15),
+                            radius: widget.windowSize.width * 0.6,
+                            child: Stack(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.blue.withOpacity(0.2),
+                                  radius: widget.windowSize.width * 0.3,
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              : Positioned.fromRect(
+                  rect: Rect.fromCenter(
+                    center: Offset(
+                      widget.windowSize.width / 2,
+                      widget.windowSize.height / 2,
+                    ),
+                    width: widget.windowSize.width,
+                    height: widget.windowSize.height,
+                  ),
+                  child: const SizedBox(),
+                ),
+          ...bubbles
               .map((b) =>
 
                       /// has updates
@@ -621,7 +669,9 @@ class _BubbleViewerState extends State<BubbleViewer> {
                 ),
                 child: centerBubble,
               ),
-            ),
-        ));
+            )
+        ],
+      ),
+    );
   }
 }
