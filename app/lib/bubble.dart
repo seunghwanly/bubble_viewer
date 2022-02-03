@@ -567,40 +567,47 @@ class _BubbleViewerState extends State<BubbleViewer> {
         minScale: 0.1,
         child: Stack(
           children: bubbles
-              .map(
-                (b) =>
+              .map((b) =>
 
-                    /// has updates
-                    b.updates != null
+                      /// has updates
+                      b.updates != null
 
-                        /// use Badges
-                        ? widget.useBadge != null && widget.useBadge!
-                            ? b.imageURL != null && b.imageBinary == null
+                          /// use Badges
+                          ? widget.useBadge != null && widget.useBadge!
+                              ? b.imageURL != null && b.imageBinary == null
 
-                                /// use Badges-network
-                                ? b.networkImageBubbleWithBadge
-                                : b.imageURL == null && b.imageBinary != null
+                                  /// use Badges-network
+                                  ? b.networkImageBubbleWithBadge
+                                  : b.imageURL == null && b.imageBinary != null
 
-                                    /// use Badges-binary
-                                    ? b.binaryImageBubbleWithBadge
-                                    : b.bubbleWithBadge // use Badge-basic
-                            /// use Gradient
-                            : widget.useGradient != null && widget.useGradient!
-                                ? b.imageURL != null && b.imageBinary == null
+                                      /// use Badges-binary
+                                      ? b.binaryImageBubbleWithBadge
+                                      : b.bubbleWithBadge // use Badge-basic
+                              /// use Gradient
+                              : widget.useGradient != null &&
+                                      widget.useGradient!
+                                  ? b.imageURL != null && b.imageBinary == null
 
-                                    /// use Gradient-network
-                                    ? b.networkImageBubbleWithGradient
-                                    : b.imageURL == null &&
-                                            b.imageBinary != null
+                                      /// use Gradient-network
+                                      ? b.networkImageBubbleWithGradient
+                                      : b.imageURL == null &&
+                                              b.imageBinary != null
 
-                                        /// use Gradient-binary
-                                        ? b.binaryImageBubbleWithGradient
-                                        : b.bubbleWithGradient // use basic
-                                : b.bubble
+                                          /// use Gradient-binary
+                                          ? b.binaryImageBubbleWithGradient
+                                          : b.bubbleWithGradient // use basic
+                                  : b.bubble
 
-                        /// no updates
-                        : b.bubble,
-              )
+                          /// no updates
+                          /// use network-image
+                          : b.imageURL != null && b.imageBinary == null
+                              ? b.networkImageBubble
+
+                              /// use binary-image
+                              : b.imageURL == null && b.imageBinary != null
+                                  ? b.binaryImageBubble
+                                  : b.bubble // use basic
+                  )
               .toList()
             ..add(
               Positioned.fromRect(
